@@ -6,8 +6,8 @@ namespace SongHUB.Domain
     {
         List<Song> GetAllSongs();
         Song GetSongById(int id);
-        int AddSong(Song song);
-        bool UpdateSong(Song song);
+        int SaveSong(Song song);
         bool DeleteSong(int id);
+
     }
 }
