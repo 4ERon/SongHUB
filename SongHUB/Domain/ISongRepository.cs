@@ -8,6 +8,7 @@ namespace SongHUB.Domain
         Song GetSongById(int id);
         int SaveSong(Song song);
         bool DeleteSong(int id);
+        List<Song> SearchSong(string searchText);
 
     }
 }

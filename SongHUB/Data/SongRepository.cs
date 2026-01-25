@@ -62,8 +62,9 @@ public class SongRepository : ISongRepository
             CommandType = CommandType.StoredProcedure
         };
 
+        // Pass actual Id if editing, or DBNull if new song
         command.Parameters.Add("@Id", SqlDbType.Int).Value =
-            song.Id == 0 ? DBNull.Value : song.Id;
+            song.Id > 0 ? song.Id : (object)DBNull.Value;
 
         command.Parameters.Add("@Title", SqlDbType.NVarChar).Value = song.Title;
         command.Parameters.Add("@Singer", SqlDbType.NVarChar).Value = song.Singer;
@@ -71,8 +72,11 @@ public class SongRepository : ISongRepository
         command.Parameters.Add("@Lyrics", SqlDbType.NVarChar).Value = song.Lyrics;
 
         connection.Open();
-        return Convert.ToInt32(command.ExecuteScalar()); // 🔥 IMPORTANT
+
+        // ExecuteScalar will return the Id of inserted or updated song
+        return Convert.ToInt32(command.ExecuteScalar());
     }
+
 
 
     public bool DeleteSong(int songId)
@@ -87,6 +91,32 @@ public class SongRepository : ISongRepository
             return command.ExecuteNonQuery() > 0;
         }
     }
+
+    public List<Song> SearchSong(string searchText)
+    {
+        var songs = new List<Song>();
+
+        using (var connection = new SqlConnection(_connectionString))
+        using (var command = new SqlCommand("sp_SearchAllSongs", connection))
+        {
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add("@SearchText", SqlDbType.NVarChar).Value = searchText;
+
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    songs.Add(MapSong(reader));
+                }
+            }
+        }
+
+        return songs;
+    }
+
+
 
     private Song MapSong(SqlDataReader reader)
     {
