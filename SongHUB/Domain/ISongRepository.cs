@@ -10,5 +10,7 @@ namespace SongHUB.Domain
         bool DeleteSong(int id);
         List<Song> SearchSong(string searchText);
 
+        bool IsSongExists(string title, string singer, int songId = 0);
+
     }
 }

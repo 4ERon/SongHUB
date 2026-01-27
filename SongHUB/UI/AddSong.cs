@@ -1,5 +1,6 @@
-using SongHUB.Domain;
 using SongHUB.Data;
+using SongHUB.Domain;
+using System.Windows.Forms;
 
 namespace SongHUB
 {
@@ -141,6 +142,47 @@ namespace SongHUB
         private void btnMinimize_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void txtTitle_TextChanged(object sender, EventArgs e)
+        {
+            ValidateSong();
+        }
+
+        private void ValidateSong()
+        {
+            string title = txtTitle.Text;
+            string singer = txtSinger.Text;
+
+
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(singer))
+            {
+                errorProvider1.SetError(txtTitle, "");
+                errorProvider1.SetError(txtSinger, "");
+                btnSave.Enabled = false;
+                return;
+            }
+
+            bool exist = _songRepository.IsSongExists(title, singer, _selectedSongId);
+
+            if (exist)
+            {
+                errorProvider1.SetError(txtTitle, "Song title and singer already exist");
+                errorProvider1.SetError(txtSinger, "Song title and singer already exist");
+                btnSave.Enabled = false;
+            }
+
+            else
+            {
+                errorProvider1.SetError(txtTitle, "");
+                errorProvider1.SetError(txtSinger, "");
+                btnSave.Enabled = true;
+            }
+        }
+
+        private void txtSinger_TextChanged(object sender, EventArgs e)
+        {
+            ValidateSong();
         }
     }
 }

@@ -92,6 +92,23 @@ public class SongRepository : ISongRepository
         }
     }
 
+    public bool IsSongExists(string title, string singer, int songId = 0)
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        using (var command = new SqlCommand("sp_CheckSongTitleExists", connection))
+        {
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add("@Title", SqlDbType.NVarChar).Value = title;
+            command.Parameters.Add("@Singer", SqlDbType.NVarChar).Value = singer;
+            command.Parameters.Add("@Id", SqlDbType.Int).Value =
+                songId > 0 ? songId : (object)DBNull.Value;
+
+            connection.Open();
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count > 0;
+        }
+    }
+
     public List<Song> SearchSong(string searchText)
     {
         var songs = new List<Song>();
@@ -115,7 +132,6 @@ public class SongRepository : ISongRepository
 
         return songs;
     }
-
 
 
     private Song MapSong(SqlDataReader reader)
